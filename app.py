@@ -1,25 +1,18 @@
-from flask import Flask
-import boto3
+import subprocess
 
-app = Flask(__name__)
+def install_package(package_name):
+    print(f"Installing {package_name}...")
+    subprocess.run(['yum', 'install', '-y', package_name])
 
-def get_public_ip():
-    try:
-        ec2_client = boto3.client('ec2')
-        response = ec2_client.describe_instances()
-        public_ip = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
-        return public_ip
-    except Exception as e:
-        print(f"Error retrieving public IP address: {e}")
-        return None
-
-@app.route('/')
-def hello():
-    return "Hello, World!"
+def change_folder_permissions(folder_path):
+    print(f"Changing permissions of {folder_path} folder...")
+    subprocess.run(['chmod', '-R', '777', folder_path])
 
 if __name__ == "__main__":
-    public_ip = get_public_ip()
-    if public_ip:
-        app.run(host=public_ip, port=5000)
-    else:
-        print("Failed to retrieve public IP address. Exiting.")
+    packages_to_install = ['httpd', 'java', 'mysql']
+    folder_to_change_permissions = '/test1'
+
+    for package in packages_to_install:
+        install_package(package)
+
+    change_folder_permissions(folder_to_change_permissions)
